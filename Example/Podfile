@@ -1,0 +1,6 @@
+use_frameworks!
+target 'MJLocalize_Tests' do
+  pod 'MJLocalize', :path => '../'
+  
+  
+end
