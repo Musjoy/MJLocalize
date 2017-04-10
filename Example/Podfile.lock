@@ -1,0 +1,16 @@
+PODS:
+  - MJLocalize (0.1.0)
+
+DEPENDENCIES:
+  - MJLocalize (from `../`)
+
+EXTERNAL SOURCES:
+  MJLocalize:
+    :path: ../
+
+SPEC CHECKSUMS:
+  MJLocalize: 7af4a3694b764596d676d7e502544f9f36b5978e
+
+PODFILE CHECKSUM: 4ea1b7a7bc4984c01e1a2c51420d5be2a58b7217
+
+COCOAPODS: 1.2.0
