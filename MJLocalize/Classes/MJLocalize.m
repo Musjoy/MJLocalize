@@ -17,9 +17,11 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
 
 @interface MJLocalize ()
 
+@property (nonatomic, strong) NSDictionary *dicShortLanguageKey;                    ///< 替代的语言缩写
+
 @property (nonatomic, strong) NSMutableDictionary *dicCurLocalizedTable;            ///< 当前使用的本地化列表
 
-@property (nonatomic, strong) NSMutableArray *arrAddedLocalizedTables;              ///< 第三方添加的国际化
+@property (nonatomic, strong) NSMutableArray *arrAddedLocalizedTables;              ///< 第三方添加的本地化
 
 @end
 
@@ -40,8 +42,8 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     if (self) {
         _dicCurLocalizedTable = [[NSMutableDictionary alloc] init];
         _arrAddedLocalizedTables = [[NSMutableArray alloc] init];
+        _dicShortLanguageKey = @{@"zh-Hans" : @"zh"};
         [self reloadData];
-        
     }
     return self;
 }
@@ -119,7 +121,7 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
         return strLocalized;
     }
     
-    // 最后无数据的话，只能读取项目中的国际化
+    // 最后无数据的话，只能读取项目中的本地化
     strLocalized = NSLocalizedString(str, nil);
     [_dicCurLocalizedTable setObject:strLocalized forKey:str];
     
@@ -140,28 +142,50 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     // 读取设备语言配置
     NSArray *arrLanguages = [NSLocale preferredLanguages];
     for (NSString *aLanguage in arrLanguages) {
+        NSDictionary *dicTable = nil;
+        // 首先读取带有地区的本地化
+        NSString *languageKey = aLanguage;
+        NSDictionary *dicTableRegion = [dicLocalize objectForKey:languageKey];
+        // 剥离地区
         NSRange aRange = [aLanguage rangeOfString:@"-" options:NSBackwardsSearch];
-        NSString *languageKey = [aLanguage substringToIndex:aRange.location];
-        NSDictionary *dicTable = [dicLocalize objectForKey:languageKey];
+        if (aRange.length > 0) {
+            languageKey = [languageKey substringToIndex:aRange.location];
+            dicTable = [dicLocalize objectForKey:languageKey];
+            if (dicTable == nil) {
+                // 查找是否有替代的缩写语言
+                NSString *shortLanguageKey = _dicShortLanguageKey[languageKey];
+                if (shortLanguageKey) {
+                    languageKey = shortLanguageKey;
+                    dicTable = [dicLocalize objectForKey:languageKey];
+                }
+            }
+        }
+        
         if (dicTable) {
             LogTrace(@"Use language { %@ }", languageKey);
             [dicLocalizedTable addEntriesFromDictionary:dicTable];
+            if (dicTableRegion) {
+                LogTrace(@"Add region { %@ }", aLanguage);
+            }
+            break;
+        } else if (dicTableRegion) {
+            [dicLocalizedTable addEntriesFromDictionary:dicTableRegion];
+            LogTrace(@"Use language with region { %@ }", aLanguage);
             break;
         }
     }
     
+    NSMutableDictionary *dicThisLocalizedTable = [[NSMutableDictionary alloc] init];
     if (dicBaseLocalizedTable) {
-        // 添加默认国际化
-        for (NSString *key in dicBaseLocalizedTable.allKeys) {
-            if (![dicLocalizedTable objectForKey:key]) {
-                NSString *value = dicBaseLocalizedTable[key];
-                [dicLocalizedTable setObject:value forKey:key];
-            }
-        }
+        // 添加默认本地化
+        [dicThisLocalizedTable addEntriesFromDictionary:dicBaseLocalizedTable];
     }
     if (dicLocalizedTable) {
-        [_dicCurLocalizedTable addEntriesFromDictionary:dicLocalizedTable];
+        // 再覆盖上对应语言的本地化
+        [dicThisLocalizedTable addEntriesFromDictionary:dicLocalizedTable];
     }
+    
+    [_dicCurLocalizedTable addEntriesFromDictionary:dicThisLocalizedTable];
 }
 
 
