@@ -149,7 +149,7 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
         // 剥离地区
         NSRange aRange = [aLanguage rangeOfString:@"-" options:NSBackwardsSearch];
         if (aRange.length > 0) {
-            languageKey = [languageKey substringToIndex:aRange.location];
+            languageKey = [aLanguage substringToIndex:aRange.location];
             dicTable = [dicLocalize objectForKey:languageKey];
             if (dicTable == nil) {
                 // 查找是否有替代的缩写语言
