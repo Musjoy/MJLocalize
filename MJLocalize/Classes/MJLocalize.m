@@ -44,6 +44,13 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
         _arrAddedLocalizedTables = [[NSMutableArray alloc] init];
         _dicShortLanguageKey = @{@"zh-Hans" : @"zh"};
         [self reloadData];
+        
+#ifdef MODULE_FILE_SOURCE
+        // 注册通知
+        [FileSource observeFiles:@[FILE_NAME_LOCALIZABLE, FILE_NAME_LOCALIZABLE_ACCESSORY] firstCheckUpdate:^{
+            [self reloadData];
+        }];
+#endif
     }
     return self;
 }
