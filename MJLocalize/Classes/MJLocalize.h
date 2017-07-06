@@ -18,6 +18,11 @@
 #define FILE_NAME_LOCALIZABLE_ACCESSORY     @"localizable_accessory"
 #endif
 
+// 语言映射，当一个语言不存在时，通过该映射查找是否存在映射后的语言
+#ifndef LOCALIZE_LANGUAGE_MAP
+#define LOCALIZE_LANGUAGE_MAP               @{@"zh-Hans" : @"zh", @"en" : @"Base"}
+#endif
+
 /// 读取本地话列表的key
 static NSString *const kLocalizable         = @"localizable";
 

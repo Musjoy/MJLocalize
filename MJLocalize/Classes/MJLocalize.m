@@ -42,7 +42,7 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     if (self) {
         _dicCurLocalizedTable = [[NSMutableDictionary alloc] init];
         _arrAddedLocalizedTables = [[NSMutableArray alloc] init];
-        _dicShortLanguageKey = @{@"zh-Hans" : @"zh"};
+        _dicShortLanguageKey = LOCALIZE_LANGUAGE_MAP;
         [self reloadData];
         
 #ifdef MODULE_FILE_SOURCE
