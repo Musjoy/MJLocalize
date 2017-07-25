@@ -19,9 +19,13 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
 
 @property (nonatomic, strong) NSDictionary *dicShortLanguageKey;                    ///< 替代的语言缩写
 
+@property (nonatomic, strong) NSDictionary *dicDefaultLocalizedTable;               ///< 默认的本地化列表
+
 @property (nonatomic, strong) NSMutableDictionary *dicCurLocalizedTable;            ///< 当前使用的本地化列表
 
 @property (nonatomic, strong) NSMutableArray *arrAddedLocalizedTables;              ///< 第三方添加的本地化
+
+@property (nonatomic, strong) NSMutableDictionary *dicAddedLocalizedTables;         ///< 第三方添加的本地化字典
 
 @end
 
@@ -42,6 +46,7 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     if (self) {
         _dicCurLocalizedTable = [[NSMutableDictionary alloc] init];
         _arrAddedLocalizedTables = [[NSMutableArray alloc] init];
+        _dicAddedLocalizedTables = [[NSMutableDictionary alloc] init];
         _dicShortLanguageKey = LOCALIZE_LANGUAGE_MAP;
         [self reloadData];
         
@@ -69,6 +74,22 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     // 读取附属文件
     NSDictionary *dicLocalizeAccessory = getFileData(FILE_NAME_LOCALIZABLE_ACCESSORY);
     [self addThisLocalize:dicLocalizeAccessory];
+    
+    _dicDefaultLocalizedTable = [_dicCurLocalizedTable copy];
+    
+    // 重新加载第三方配置
+    for (NSDictionary *dicLocalize in _arrAddedLocalizedTables) {
+        [self addThisLocalize:dicLocalize];
+    }
+}
+
+- (void)reloadAddedLocalized
+{
+    [_dicCurLocalizedTable removeAllObjects];
+    
+    if (_dicDefaultLocalizedTable) {
+        [_dicCurLocalizedTable addEntriesFromDictionary:_dicDefaultLocalizedTable];
+    }
     
     // 重新加载第三方配置
     for (NSDictionary *dicLocalize in _arrAddedLocalizedTables) {
@@ -103,15 +124,32 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     return body;
 }
 
-- (void)addLocalizedStringWith:(NSDictionary *)dicLocalize
+- (NSString *)addLocalizedStringWith:(NSDictionary *)dicLocalize
 {
     if (dicLocalize == nil) {
-        return;
+        return nil;
     }
     
     [self addThisLocalize:dicLocalize];
     
     [_arrAddedLocalizedTables addObject:dicLocalize];
+    NSString *key = [[NSUUID UUID] UUIDString];
+    [_dicAddedLocalizedTables setObject:dicLocalize forKey:key];
+    return key;
+}
+
+- (void)removeLocalizedWith:(NSString *)tableId
+{
+    if (tableId.length == 0) {
+        return;
+    }
+    
+    NSDictionary *dicLocalize = [_dicAddedLocalizedTables objectForKey:tableId];
+    if (dicLocalize) {
+        [_arrAddedLocalizedTables removeObject:dicLocalize];
+        [_dicAddedLocalizedTables removeObjectForKey:tableId];
+        [self reloadAddedLocalized];
+    }
 }
 
 #pragma mark -  Private
