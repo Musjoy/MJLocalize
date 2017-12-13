@@ -220,17 +220,21 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
         }
     }
     
-    NSMutableDictionary *dicThisLocalizedTable = [[NSMutableDictionary alloc] init];
-    if (dicBaseLocalizedTable) {
-        // 添加默认本地化
-        [dicThisLocalizedTable addEntriesFromDictionary:dicBaseLocalizedTable];
-    }
-    if (dicLocalizedTable) {
-        // 再覆盖上对应语言的本地化
-        [dicThisLocalizedTable addEntriesFromDictionary:dicLocalizedTable];
+    // 国际化优先级dicLocalizedTable > _dicCurLocalizedTable > dicBaseLocalizedTable > _diCurBaseLocalizedTable
+    if (dicLocalizedTable != nil) {
+        // 添加对应语言国际化
+        [_dicCurLocalizedTable addEntriesFromDictionary:dicLocalizedTable];
     }
     
-    [_dicCurLocalizedTable addEntriesFromDictionary:dicThisLocalizedTable];
+    if (dicBaseLocalizedTable) {
+        // 添加默认本地化
+        for (NSString *aKey in dicBaseLocalizedTable.allKeys) {
+            if (![dicLocalizedTable objectForKey:aKey] && ![_dicCurLocalizedTable objectForKey:aKey]) {
+                // 如果对应国际化不存在，并且当前国际化也不存在，这加入对应base国际化
+                [_dicCurLocalizedTable setObject:dicBaseLocalizedTable[aKey] forKey:aKey];
+            }
+        }
+    }
 }
 
 
