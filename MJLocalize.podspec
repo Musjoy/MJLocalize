@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'MJLocalize'
-  s.version          = '0.1.3'
+  s.version          = '0.1.4'
   s.summary          = 'MJLocalize is use to get localized string from plist'
 
 
