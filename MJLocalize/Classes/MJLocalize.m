@@ -15,6 +15,8 @@ static MJLocalize *s_localize = nil;
 
 static NSString *const MJLocalizeLanguageBase = @"Base";
 
+static NSString *const MJLocalizeTableIdPrefix = @"Table-";
+
 @interface MJLocalize ()
 
 @property (nonatomic, strong) NSDictionary *dicShortLanguageKey;                    ///< 替代的语言缩写
@@ -23,8 +25,7 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
 
 @property (nonatomic, strong) NSMutableDictionary *dicCurLocalizedTable;            ///< 当前使用的本地化列表
 
-@property (nonatomic, strong) NSMutableArray *arrAddedLocalizedTables;              ///< 第三方添加的本地化
-
+@property (nonatomic, assign) int tableAddedCount;                                  ///< 国际化表单添加次数，用于生产tableId (这里不是当前次数，这里包含已被删除的)
 @property (nonatomic, strong) NSMutableDictionary *dicAddedLocalizedTables;         ///< 第三方添加的本地化字典
 
 @end
@@ -45,8 +46,8 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     self = [super init];
     if (self) {
         _dicCurLocalizedTable = [[NSMutableDictionary alloc] init];
-        _arrAddedLocalizedTables = [[NSMutableArray alloc] init];
         _dicAddedLocalizedTables = [[NSMutableDictionary alloc] init];
+        _tableAddedCount = 0;
         _dicShortLanguageKey = LOCALIZE_LANGUAGE_MAP;
         [self reloadData];
         
@@ -78,9 +79,7 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     _dicDefaultLocalizedTable = [_dicCurLocalizedTable copy];
     
     // 重新加载第三方配置
-    for (NSDictionary *dicLocalize in _arrAddedLocalizedTables) {
-        [self addThisLocalize:dicLocalize];
-    }
+    [self loadAddedLocalized];
 }
 
 - (void)reloadAddedLocalized
@@ -92,11 +91,20 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     }
     
     // 重新加载第三方配置
-    for (NSDictionary *dicLocalize in _arrAddedLocalizedTables) {
-        [self addThisLocalize:dicLocalize];
-    }
+    [self loadAddedLocalized];
 }
 
+// 重新加载第三方配置
+- (void)loadAddedLocalized
+{
+    for (int i=1; i<=_tableAddedCount; i++) {
+        NSString *aKey = [NSString stringWithFormat:@"%@%d", MJLocalizeTableIdPrefix, i];
+        NSDictionary *dicLocalize = [_dicAddedLocalizedTables objectForKey:aKey];
+        if (dicLocalize) {
+            [self addThisLocalize:dicLocalize];
+        }
+    }
+}
 
 #pragma mark - Public
 
@@ -132,8 +140,9 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     
     [self addThisLocalize:dicLocalize];
     
-    [_arrAddedLocalizedTables addObject:dicLocalize];
-    NSString *key = [[NSUUID UUID] UUIDString];
+    _tableAddedCount++;
+    
+    NSString *key = [NSString stringWithFormat:@"%@%d", MJLocalizeTableIdPrefix, _tableAddedCount];
     [_dicAddedLocalizedTables setObject:dicLocalize forKey:key];
     return key;
 }
@@ -146,7 +155,6 @@ static NSString *const MJLocalizeLanguageBase = @"Base";
     
     NSDictionary *dicLocalize = [_dicAddedLocalizedTables objectForKey:tableId];
     if (dicLocalize) {
-        [_arrAddedLocalizedTables removeObject:dicLocalize];
         [_dicAddedLocalizedTables removeObjectForKey:tableId];
         [self reloadAddedLocalized];
     }
