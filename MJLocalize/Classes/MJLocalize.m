@@ -7,9 +7,7 @@
 //
 
 #import "MJLocalize.h"
-#ifdef MODULE_FILE_SOURCE
-#import <FileSource.h>
-#endif
+#import HEADER_FILE_SOURCE
 
 static MJLocalize *s_localize = nil;
 
