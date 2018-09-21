@@ -51,7 +51,7 @@ static NSString *const MJLocalizeTableIdPrefix = @"Table-";
         
 #ifdef MODULE_FILE_SOURCE
         // 注册通知
-        [FileSource observeFiles:@[FILE_NAME_LOCALIZABLE, FILE_NAME_LOCALIZABLE_ACCESSORY] firstCheckUpdate:^{
+        [FileSource observeFiles:@[FILE_NAME_LOCALIZABLE, FILE_NAME_LOCALIZABLE_ACCESSORY] whileUpdate:^{
             [self reloadData];
         }];
 #endif
