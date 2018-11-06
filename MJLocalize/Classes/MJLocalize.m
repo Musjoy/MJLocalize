@@ -130,6 +130,20 @@ static NSString *const MJLocalizeTableIdPrefix = @"Table-";
     return body;
 }
 
++ (NSString *)localizedString:(NSString *)str withArguments:(NSArray *)arrArguments
+{
+    NSString *strLocalized = [[self sharedInstance] localizedString:str];
+    
+    if (arrArguments && arrArguments.count > 0) {
+        for (NSInteger i, len=arrArguments.count; i < len; i++) {
+            strLocalized = [strLocalized stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"{%d}", i]
+                                                                   withString:arrArguments[i]];
+        }
+    }
+    
+    return strLocalized;
+}
+
 - (NSString *)addLocalizedStringWith:(NSDictionary *)dicLocalize
 {
     if (dicLocalize == nil) {

@@ -33,8 +33,11 @@ static NSString *const kLocalizable         = @"localizable";
 /// 获取本地化字符串
 + (NSString *)localizedString:(NSString *)str;
 
-/// 获取本地化字符串，并对齐进行格式化
+/// 获取本地化字符串，并对其进行格式化
 + (NSString *)localizedStringWithFormat:(NSString *)format, ...;
+
+/// 获取本地化字符串，并对其进行参数替换
++ (NSString *)localizedString:(NSString *)str withArguments:(NSArray *)arrArguments;
 
 /// 添加第三方本地化数据，返回tableId，用于移除添加过的国际化
 - (NSString *)addLocalizedStringWith:(NSDictionary *)dicLocalize;
