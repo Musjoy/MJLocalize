@@ -226,14 +226,14 @@ static NSString *const MJLocalizeTableIdPrefix = @"Table-";
             }
         }
         
-        if (dicTable) {
+        if (dicTable && [dicTable isKindOfClass:[NSDictionary class]]) {
             LogTrace(@"Use language { %@ }", languageKey);
             [dicLocalizedTable addEntriesFromDictionary:dicTable];
             if (dicTableRegion) {
                 LogTrace(@"Add region { %@ }", aLanguage);
             }
             break;
-        } else if (dicTableRegion) {
+        } else if (dicTableRegion && [dicTableRegion isKindOfClass:[NSDictionary class]]) {
             [dicLocalizedTable addEntriesFromDictionary:dicTableRegion];
             LogTrace(@"Use language with region { %@ }", aLanguage);
             break;
