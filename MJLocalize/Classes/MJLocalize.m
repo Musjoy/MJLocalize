@@ -106,10 +106,10 @@ static NSString *const MJLocalizeTableIdPrefix = @"Table-";
 
 #pragma mark - Public
 
-+ (NSString *)curLanguage
-{
-    return [[self sharedInstance] curLanguage];
-}
+//+ (NSString *)curLanguage
+//{
+//    return [[self sharedInstance] curLanguage];
+//}
 
 + (NSString *)localizedString:(NSString *)str
 {
